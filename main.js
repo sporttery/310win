@@ -109,10 +109,10 @@ async function initFun(page) {
     await Puppeteer.launch({
         headless: false,
         defaultViewport: {
-            width: 1920,
-            height: 966,
+            width: 1400,
+            height: 900,
         },
-          args: [/*"--no-sandbox", "--disable-setuid-sandbox",*/"--disable-web-security"],
+          args: [/*"--no-sandbox", "--disable-setuid-sandbox",*/"--disable-web-security",'--start-maximized'],
         ignoreHTTPSErrors: true,
         ignoreDefaultArgs: ["--enable-automation", "--enable-blink-features"]
         // devtools: true
