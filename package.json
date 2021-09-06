@@ -1,0 +1,20 @@
+{
+  "name": "310win",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "main": "node main.js",
+    "package": "electron-packager ./ MyBet007 --platform=win32  --arch=x64 --icon=./favicon.ico --out=./dist --app-version=1.0.0 --overwrite"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^4.0.6",
+    "electron-packager": "^13.1.1"
+  },
+  "dependencies": {
+    "puppeteer": "^10.2.0"
+  }
+}
