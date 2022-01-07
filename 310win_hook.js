@@ -1,6 +1,6 @@
 var hookJs = true;
 var needData = {
-    "tech": { "射门": 1, "进攻": 1, "危险进攻": 1, "犯规": 1 },
+    "tech": { "进攻": 1, "危险进攻": 1, "射门": 1, "犯规": 1 },
     "event": {
         "/images/bf_img/1.png": "进球",
         "/images/bf_img/7.png": "点球",
@@ -65,7 +65,7 @@ function getHtml(data) {
             html.push(item.imgTitle + " " + item.time);
         }        
     }
-    return '<td class="myData" style="vertical-align:top">' + html.join("<br/>") + '</td>'
+    return '<td class="myData" style="vertical-align:top;font-size:22px;">' + html.join("<br/>") + '</td>'
 }
 
 function showData(obj, data) {
@@ -81,7 +81,7 @@ function setTr() {
     $(".porletP:visible").each(function () {
         idx = this.id.replace("porlet_", "");
         if (idx != "8" && idx != "9") {
-            $(this).hide();
+            $(this).remove();
         } else {
             $(this).find("table").find("tr:visible").each(function () {
                 var tds = $(this).find("td");
@@ -119,26 +119,38 @@ function setTr() {
     });
 }
 
-
-var old_s_onchange = s_onchange;
-var old_t_onclick = t_onclick;
-var old_cb_onclick = cb_onclick;
-s_onchange = function (id,count) {
-    old_s_onchange(id,count);
-    setTr();
+function initHook(){
+    if(typeof s_onchange!="undefined" ){
+        var old_s_onchange = s_onchange;
+        var old_t_onclick = t_onclick;
+        var old_cb_onclick = cb_onclick;
+        s_onchange = function (id,count) {
+            old_s_onchange(id,count);
+            setTr();
+        }
+        
+        t_onclick = function (id) {
+            old_t_onclick(id);
+            setTr();
+        }
+        
+        cb_onclick = function(flag,lid){
+            old_cb_onclick(flag,lid);
+            setTr();
+        }
+        $("#right_float").remove();
+        $("#dv_new").remove();
+        $("#iframeA").hide();
+    }else{
+        console.info("未找到指定元素，1秒后再试");
+        setTimeout(initHook,1000);
+    }
 }
+window.pbuy_21 = false;
 
-t_onclick = function (id) {
-    old_t_onclick(id);
-    setTr();
-}
 
-cb_onclick = function(flag,lid){
-    old_cb_onclick(flag,lid);
-    setTr();
-}
 
-$("#dv_new").hide();
+initHook();
 
 
   

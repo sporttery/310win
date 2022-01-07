@@ -70,7 +70,7 @@ async function initFun(page) {
         });
     });
 
-    await page.on("console", (msg) => {
+    page.on("console", (msg) => {
         console.log(new Date(), "PAGE LOG:", msg.text());
     });
 
@@ -99,6 +99,7 @@ async function initFun(page) {
         });
     }
 
+
     await page.evaluate(() => {
         // setTr();
         $("#h_s").val("3").trigger("change");
@@ -108,13 +109,11 @@ async function initFun(page) {
 (async () => {
     await Puppeteer.launch({
         headless: false,
-        defaultViewport: {
-            width: 1400,
-            height: 900,
-        },
+        defaultViewport: null,
           args: [/*"--no-sandbox", "--disable-setuid-sandbox",*/"--disable-web-security",'--start-maximized'],
         ignoreHTTPSErrors: true,
-        ignoreDefaultArgs: ["--enable-automation", "--enable-blink-features"]
+        ignoreDefaultArgs: ["--enable-automation", "--enable-blink-features"],
+        // executablePath:"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
         // devtools: true
     }).then(async (browser) => {
         let pages = await browser.pages();
