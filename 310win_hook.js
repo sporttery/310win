@@ -5,6 +5,9 @@ var needData = {
         "/images/bf_img/1.png": "进球",
         "/images/bf_img/7.png": "点球",
         "/images/bf_img/8.png": "乌龙",
+        "/images/bf_imgnew/1.png": "进球",
+        "/images/bf_imgnew/7.png": "点球",
+        "/images/bf_imgnew/8.png": "乌龙",
     }
 };
 
@@ -15,6 +18,7 @@ function getData(body) {
     if (!body) {
         body = document.body;
     }
+
     $(body).find("#teamTechDiv_detail").find("td").each(function () {
         var flag = $(this).text().trim();
         if (needData["tech"][flag]) {
@@ -52,29 +56,60 @@ function getData(body) {
     return { hostData, visitData };
 }
 
-
-function getHtml(data) {
-    var html = [];
-    for (var key in needData["tech"]) {
-        html.push(key + " " + (data["tech"][key] || ""));
-    }
-    for (var key in data["event"]) {
-        var arr = data["event"][key];
-        for (var i = 0; i < arr.length; i++) {
-            var item = arr[i];
-            html.push(item.imgTitle + " " + item.time);
-        }        
-    }
-    return '<td class="myData" style="vertical-align:top;font-size:22px;">' + html.join("<br/>") + '</td>'
-}
-
 function showData(obj, data) {
     // console.log("组成数据 " + obj.id);
-    var hostHtml = getHtml(data.hostData);
-    var visitHtml = getHtml(data.visitData);
-    var html = hostHtml + visitHtml;
+    // console.info(data);
+    var html=[];
+    html.push('<tr><th>参数</th><th>主队</th><th>客队</th></tr>');
+    for(var key in data.hostData.tech ){
+        html.push('<tr><th>'+key+'</th>');
+        var hostValue = parseInt(data.hostData.tech[key]);
+        var visitValue = parseInt(data.visitData.tech[key]);
+        if(hostValue && visitValue ){
+            if(hostValue> visitValue){
+                html.push('<td><font color=red>'+hostValue+'</font></td>');
+                html.push('<td><font color=green>'+visitValue+'</font></td>');
+            }else if(hostValue < visitValue){
+                html.push('<td><font color=green>'+hostValue+'</font></td>');
+                html.push('<td><font color=red>'+visitValue+'</font></td>');
+            }else{
+                html.push('<td>'+hostValue+'</td>');
+                html.push('<td>'+visitValue+'</td>');
+            }
+        }else{
+            html.push('<td>-</td>');
+            html.push('<td>-</td>');
+        }
+        html.push('</tr>');
+    }
+    var strjj = '<tr><th rowspan=###>进球时间</th></tr>';
+    var n=0,tmp=[];
+    for (var key in data.hostData["event"]) {
+        var arr = data.hostData["event"][key];
+        for (var i = 0; i < arr.length; i++) {
+            var item = arr[i];
+            tmp.push('<tr><td>'+item.imgTitle + " " + item.time+'</td><td>-</td></tr>');
+        }        
+    }
+    for (var key in data.visitData["event"]) {
+        var arr = data.visitData["event"][key];
+        for (var i = 0; i < arr.length; i++) {
+            var item = arr[i];
+            if(! tmp[n] ){
+                tmp.push('<tr><td>-</td><td>'+item.imgTitle + " " + item.time+'</td></tr>');
+            }else{
+                tmp[n] = tmp[n].replace('<td>-</td>','<td>'+item.imgTitle + " " + item.time+'</td>');
+            }
+            n++;
+        }        
+    }
+    strjj=strjj.replace("###",tmp.length+1);
+    
+    html.push(strjj+tmp.join(''));
+    var str = '<td class="myData" style="vertical-align:top;background: #fff;font-size: 15px;"><table cellspacing="0" cellpadding="0" width="100%" align="center"  border="1">' + html.join("") + '</table></td>';
+   
     $(obj).find(".myData").remove();
-    $(html).appendTo($(obj));
+    $(str).appendTo($(obj));
 }
 var data_detail = {};
 function setTr() {
@@ -102,6 +137,7 @@ function setTr() {
                         return function (d) {
                             d = d.replace(/[\r\n]/g, "");
                             d = d.replace(/<script.+?<\/script>/g, "");
+                            d = d.replace(/imgnew/g,'img');
                             // console.log(d);
                             data = getData(d);
                             showData(obj, data);
@@ -111,7 +147,9 @@ function setTr() {
                     if (data_detail[this.id]) {
                         showData(this, data_detail[this.id]);
                     } else {
-                        $.get("http://bf.win007.com/detail/" + matchid + "cn.htm", fun(this));
+                        var detailUrl = "http://bf.win007.com/detail/" + matchid + "cn.htm";
+                        console.info(detailUrl);
+                        $.get(detailUrl, fun(this));
                     }
                 }
             });
@@ -119,7 +157,7 @@ function setTr() {
     });
 }
 
-function initHook(){
+function initHook(flag){
     if(typeof s_onchange!="undefined" ){
         var old_s_onchange = s_onchange;
         var old_t_onclick = t_onclick;
@@ -141,10 +179,16 @@ function initHook(){
         $("#right_float").remove();
         $("#dv_new").remove();
         $("#iframeA").hide();
+        if(flag==1){
+            $("#h_s").val("3").trigger("change");
+            $("#a_s").val("3").trigger("change");
+        }
     }else{
         console.info("未找到指定元素，1秒后再试");
-        setTimeout(initHook,1000);
+        setTimeout(initHook,1000,1);
+        return;
     }
+    
 }
 window.pbuy_21 = false;
 

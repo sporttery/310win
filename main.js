@@ -1,6 +1,6 @@
 var jQueryScript, hookJsScript, page,mybrowser;
 const fs = require("fs");
-const Puppeteer = require("puppeteer");
+const Puppeteer = require("puppeteer-core");
 async function initFun(page) {
     console.log("找到目标页了" + page.url());
     page.initFun = true;
@@ -70,9 +70,9 @@ async function initFun(page) {
         });
     });
 
-    page.on("console", (msg) => {
-        console.log(new Date(), "PAGE LOG:", msg.text());
-    });
+    // page.on("console", (msg) => {
+    //     console.log(new Date(), "PAGE LOG:", msg.text());
+    // });
 
     var hasJquery = await page.evaluate(() => { return typeof jQueryScript != "undefined" });
     var resourcePath = __dirname;
@@ -113,7 +113,7 @@ async function initFun(page) {
           args: [/*"--no-sandbox", "--disable-setuid-sandbox",*/"--disable-web-security",'--start-maximized'],
         ignoreHTTPSErrors: true,
         ignoreDefaultArgs: ["--enable-automation", "--enable-blink-features"],
-        // executablePath:"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        executablePath:"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
         // devtools: true
     }).then(async (browser) => {
         let pages = await browser.pages();
