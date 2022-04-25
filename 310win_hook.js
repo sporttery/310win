@@ -1,6 +1,6 @@
 var hookJs = true;
 var needData = {
-    "tech": { "进攻": 1, "危险进攻": 1, "射门": 1, "犯规": 1 },
+    "tech": { "进攻": 1, "危险进攻": 2, "射门": 3, "犯规": 4,"铲球":5,"成功抢断":6,"阻截":7},
     "event": {
         "/images/bf_img/1.png": "进球",
         "/images/bf_img/7.png": "点球",
@@ -21,9 +21,10 @@ function getData(body) {
 
     $(body).find("#teamTechDiv_detail").find("td").each(function () {
         var flag = $(this).text().trim();
-        if (needData["tech"][flag]) {
-            hostData["tech"][flag] = $(this).prev().text().trim();
-            visitData["tech"][flag] = $(this).next().text().trim();
+        var needFlag = needData["tech"][flag];
+        if (needFlag) {
+            hostData["tech"][needFlag+flag] = $(this).prev().text().trim();
+            visitData["tech"][needFlag+flag] = $(this).next().text().trim();
         }
     });
 
@@ -60,9 +61,12 @@ function showData(obj, data) {
     // console.log("组成数据 " + obj.id);
     // console.info(data);
     var html=[];
-    html.push('<tr><th>参数</th><th>主队</th><th>客队</th></tr>');
-    for(var key in data.hostData.tech ){
-        html.push('<tr><th>'+key+'</th>');
+    html.push('<tr style="background: gray;"><th>参数</th><th>主队</th><th>客队</th></tr>');
+
+    var keys = Object.keys(data.hostData.tech).sort();
+    for(var i = 0;i<keys.length;i++  ){
+        var key = keys[i];
+        html.push('<tr><th>'+key.substring(1)+'</th>');
         var hostValue = parseInt(data.hostData.tech[key]);
         var visitValue = parseInt(data.visitData.tech[key]);
         if(hostValue && visitValue ){
