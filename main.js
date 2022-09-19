@@ -147,7 +147,7 @@ async function initFun(page) {
             console.warn("程序退出了");
             process.exit();
         });
-        await page.goto("http://www.310win.com/");
+        await page.goto("https://www.310win.com/");
 
     });
 })();

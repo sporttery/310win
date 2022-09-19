@@ -151,7 +151,7 @@ function setTr() {
                     if (data_detail[this.id]) {
                         showData(this, data_detail[this.id]);
                     } else {
-                        var detailUrl = "http://bf.win007.com/detail/" + matchid + "cn.htm";
+                        var detailUrl =  "https://www.310win.com/info/match/detail.aspx?id="+matchid;//"http://bf.win007.com/detail/" + matchid + "cn.htm";
                         console.info(detailUrl);
                         $.get(detailUrl, fun(this));
                     }
