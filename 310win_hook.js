@@ -151,9 +151,20 @@ function setTr() {
                     if (data_detail[this.id]) {
                         showData(this, data_detail[this.id]);
                     } else {
-                        var detailUrl =  "https://www.310win.com/info/match/detail.aspx?id="+matchid;//"http://bf.win007.com/detail/" + matchid + "cn.htm";
+                        var detailUrl1 =  "https://www.310win.com/info/match/detail.aspx?id="+matchid;
+                        //"https://bf.win007.com/detail/" + matchid + "cn.htm";
+                        var detailUrl = "https://bf.titan007.com/detail/" + matchid + "cn.htm";
                         console.info(detailUrl);
-                        $.get(detailUrl, fun(this));
+                        var ele = this;
+                        $.ajax({
+                            url:detailUrl,
+                            method:"get",
+                            success:fun(ele),
+                            error:function(){
+                                $.get(detailUrl1, fun(ele));
+                            }
+                        });
+                        
                     }
                 }
             });
