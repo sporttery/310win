@@ -149,6 +149,22 @@ async function initFun(page) {
         });
         await page.goto("https://www.310win.com/");
 
+        page.on("domcontentloaded",(e)=>{            
+            page.evaluate(()=>{
+                $(".ni,.ni2").each(function(){
+                    var as = $(this).find("a");
+                    for(var i=0;i<as.length;i++){
+                        var a = as[i];
+                        if(a.textContent=='情' || a.textContent=='荐' || a.textContent=='sp'){
+                            a.remove();
+                        }else if(a.textContent=='析'){
+                            $(a).css({"font-size":'30px','color':'red'});
+                        }
+                    }
+                })
+            });
+        })
+
     });
 })();
 

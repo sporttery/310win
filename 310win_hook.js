@@ -1,6 +1,6 @@
 var hookJs = true;
 var needData = {
-    "tech": { "进攻": 1, "危险进攻": 2, "射门": 3, "犯规": 4,"铲球":5,"成功抢断":6,"阻截":7},
+    "tech": { "进攻": 1, "危险进攻": 2, "射门": 3, "犯规": 4,"传球":5,"成功抢断":6,"阻截":7},
     "event": {
         "/images/bf_img/1.png": "进球",
         "/images/bf_img/7.png": "点球",
@@ -151,6 +151,7 @@ function setTr() {
                     if (data_detail[this.id]) {
                         showData(this, data_detail[this.id]);
                     } else {
+                        //https://bf.titan007.com/detail/2222281cn.htm
                         var detailUrl1 =  "https://www.310win.com/info/match/detail.aspx?id="+matchid;
                         //"https://bf.win007.com/detail/" + matchid + "cn.htm";
                         var detailUrl = "https://bf.titan007.com/detail/" + matchid + "cn.htm";
