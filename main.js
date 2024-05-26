@@ -4,6 +4,9 @@ const Puppeteer = require("puppeteer-core");
 async function initFun(page) {
     console.log("找到目标页了" + page.url());
     page.initFun = true;
+    await page.evaluate(()=>{
+        window.pbuy_21 =false;
+    });
 
     await page.setUserAgent(
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
@@ -151,6 +154,23 @@ const chromePath = "C:\\Users\\huanbo-zw\\AppData\\Local\\Google\\Chrome\\Applic
             process.exit();
         });
         await page.goto("https://www.310win.com/");
+
+        page.on("domcontentloaded",(e)=>{            
+            page.evaluate(()=>{
+                window.pbuy_21 =false;
+                $(".ni,.ni2").each(function(){
+                    var as = $(this).find("a");
+                    for(var i=0;i<as.length;i++){
+                        var a = as[i];
+                        if(a.textContent=='情' || a.textContent=='荐' || a.textContent=='sp'){
+                            a.remove();
+                        }else if(a.textContent=='析'){
+                            $(a).css({"font-size":'30px','color':'red'});
+                        }
+                    }
+                })
+            });
+        })
 
     });
 })();

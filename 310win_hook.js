@@ -1,13 +1,11 @@
 var hookJs = true;
 var needData = {
-    "tech": { "进攻": 1, "危险进攻": 2, "射门": 3, "犯规": 4,"铲球":5,"成功抢断":6,"阻截":7},
+    "tech": { "进攻": 1, "危险进攻": 2, "射门": 3, "犯规": 4,"传球":5,"成功抢断":6,"控球率":7,"界外球":8},
     "event": {
-        "/images/bf_img/1.png": "进球",
-        "/images/bf_img/7.png": "点球",
-        "/images/bf_img/8.png": "乌龙",
-        "/images/bf_imgnew/1.png": "进球",
-        "/images/bf_imgnew/7.png": "点球",
-        "/images/bf_imgnew/8.png": "乌龙",
+        "/1.png": "进球",
+        "/7.png": "点球",
+        "/14.png": "取消入球",
+        "/8.png": "乌龙"       
     }
 };
 
@@ -18,8 +16,8 @@ function getData(body) {
     if (!body) {
         body = document.body;
     }
-
-    $(body).find("#teamTechDiv_detail").find("td").each(function () {
+    //旧版
+    tds = $(body).find("#teamTechDiv_detail").find("td").each(function () {
         var flag = $(this).text().trim();
         var needFlag = needData["tech"][flag];
         if (needFlag) {
@@ -27,32 +25,83 @@ function getData(body) {
             visitData["tech"][needFlag+flag] = $(this).next().text().trim();
         }
     });
+    //新版 https://bf.titan007.com/detail/2238661cn.htm
+    if(tds.length==0){
+        $(body).find("#teamTechDiv_detail").find(".lists .data").each(function () {
+            var spans = $(this).find("span");
+            if(spans.length==3){
+                var flag = $(spans[1]).text().trim();
+                var needFlag = needData["tech"][flag];
+                if (needFlag) {
+                    hostData["tech"][needFlag+flag] = $(spans[0]) .text().trim();
+                    visitData["tech"][needFlag+flag] = $(spans[2]) .text().trim();
+                }
+            }
+        });
+    }
 
     ///images/bf_img/1.png
-    $(body).find("#teamEventDiv_detail").find("tr").each(function () {
+    trs = $(body).find("#teamEventDiv_detail").find("tr").each(function () {
         var tds = $(this).find("td");
         if (tds.length == 5) {
             var img = $(tds[1]).find("img");
             var time = $(tds[2]).text().trim();
-            var imgTitle = img.attr("title");
-            var imgSrc = img.attr("src");
-            if (img.length == 1 && needData["event"][imgSrc]) {
-                if (!hostData["event"][imgSrc]) {
-                    hostData["event"][imgSrc] = [];
+            if (img.length == 1){
+                var imgTitle = img.attr("title");
+                var imgSrc = img.attr("src");
+                var imgSrcFlag = "/"+imgSrc.split("/").pop();
+                if ( needData["event"][imgSrcFlag]) {
+                    if (!hostData["event"][imgSrcFlag]) {
+                        hostData["event"][imgSrcFlag] = [];
+                    }
+                    hostData["event"][imgSrcFlag].push({ imgTitle, time,imgSrc });
                 }
-                hostData["event"][imgSrc].push({ imgTitle, time });
             }
             img = $(tds[3]).find("img");
-            imgTitle = img.attr("title");
-            imgSrc = img.attr("src");
-            if (img.length == 1 && needData["event"][imgSrc]) {
-                if (!visitData["event"][imgSrc]) {
-                    visitData["event"][imgSrc] = [];
+            if (img.length == 1){
+                imgTitle = img.attr("title");
+                imgSrc = img.attr("src");
+                imgSrcFlag = "/"+imgSrc.split("/").pop();
+                if (needData["event"][imgSrcFlag]) {
+                    if (!visitData["event"][imgSrcFlag]) {
+                        visitData["event"][imgSrcFlag] = [];
+                    }
+                    visitData["event"][imgSrcFlag].push({ imgTitle, time,imgSrc });
                 }
-                visitData["event"][imgSrc].push({ imgTitle, time });
             }
         }
     });
+    //新版
+    if(trs.length==0){
+        $(body).find("#teamEventDiv_detail").find(".lists .data").each(function () {
+            var spans = $(this).find("span");
+            var img = $(spans[0]).find("img");
+            var time = $(spans[1]).text().trim();
+            if(img.length==1){
+                var imgTitle = img.attr("title");
+                var imgSrc = img.attr("src");
+                var imgSrcFlag = "/"+imgSrc.split("/").pop();
+                if( needData["event"][imgSrcFlag]){
+                    if (!hostData["event"][imgSrcFlag]) {
+                        hostData["event"][imgSrcFlag] = [];
+                    }
+                    hostData["event"][imgSrcFlag].push({ imgTitle, time,imgSrc });
+                }
+            }
+            img = $(spans[2]).find("img");
+            if(img.length==1){
+                var imgTitle = img.attr("title");
+                var imgSrc = img.attr("src");
+                var imgSrcFlag = "/"+imgSrc.split("/").pop();
+                if( needData["event"][imgSrcFlag]){
+                    if (!visitData["event"][imgSrcFlag]) {
+                        visitData["event"][imgSrcFlag] = [];
+                    }
+                    visitData["event"][imgSrcFlag].push({ imgTitle, time,imgSrc });
+                }
+            } 
+        });
+    }
 
     return { hostData, visitData };
 }
@@ -142,6 +191,7 @@ function setTr() {
                             d = d.replace(/[\r\n]/g, "");
                             d = d.replace(/<script.+?<\/script>/g, "");
                             d = d.replace(/imgnew/g,'img');
+                            d = d.replace(/img2/g,'img');
                             // console.log(d);
                             data = getData(d);
                             showData(obj, data);
@@ -151,6 +201,7 @@ function setTr() {
                     if (data_detail[this.id]) {
                         showData(this, data_detail[this.id]);
                     } else {
+                        //https://bf.titan007.com/detail/2222281cn.htm
                         var detailUrl1 =  "https://www.310win.com/info/match/detail.aspx?id="+matchid;
                         //"https://bf.win007.com/detail/" + matchid + "cn.htm";
                         var detailUrl = "https://bf.titan007.com/detail/" + matchid + "cn.htm";
@@ -161,6 +212,7 @@ function setTr() {
                             method:"get",
                             success:fun(ele),
                             error:function(){
+                                console.info("got err,try to use url :" +  detailUrl1);
                                 $.get(detailUrl1, fun(ele));
                             }
                         });
