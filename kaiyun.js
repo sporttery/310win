@@ -1,12 +1,17 @@
-var jQueryScript, hookJsScript, page,mybrowser;
+var jQueryScript, hookJsScript, page, mybrowser;
 const fs = require("fs");
 const Puppeteer = require("puppeteer-core");
+/**
+ * 初使化page
+ * @param {Puppeteer.Page} page 
+ */
 async function initFun(page) {
     console.log("找到目标页了" + page.url());
     page.initFun = true;
-
+    // await page.emulate(devices['iPhone 12'])
+    await page.setViewport(viewport = { "width": 390, "height": 844, "isMobile": true })
     await page.setUserAgent(
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1 Edg/119.0.0.0"
     );
     await page.evaluateOnNewDocument(() => {
         Object.defineProperty(navigator, "plugins", {
@@ -70,41 +75,46 @@ async function initFun(page) {
         });
     });
 
-    // page.on("console", (msg) => {
-    //     console.log(new Date(), "PAGE LOG:", msg.text());
-    // });
+    await page.setRequestInterception(true);
+    page.on("response", async (response) => {
+        var url = response.url();
+        if (url.indexOf(".js") != -1) {
+            if (response.request().resourceType() === 'script') {
+                const content = await response.text();
+                console.log("找到脚本文件，进行替换");
+                // 修改 JavaScript 内容
+                const modifiedContent = content.replace(/debugger/g, '/*debugger*/');
+
+                // 返回修改后的内容
+                response.respond({
+                    status: response.status(),
+                    contentType: response.headers()['content-type'],
+                    body: Buffer.from(modifiedContent),
+                });
+            }
+        }
+    })
+
+    page.on("console", (msg) => {
+        console.log(new Date(), "PAGE LOG:", msg.text());
+    });
+
 
     var hasJquery = await page.evaluate(() => { return typeof jQueryScript != "undefined" });
     var resourcePath = __dirname;
-    if(!fs.existsSync(resourcePath+"/jquery.min.js")){
-        resourcePath  =  process.cwd();
+    if (!fs.existsSync(resourcePath + "/jquery.min.js")) {
+        resourcePath = process.cwd();
     }
     if (!hasJquery) {
         if (!jQueryScript) {
-            jQueryScript = fs.readFileSync(resourcePath+"/jquery.min.js").toString();
+            jQueryScript = fs.readFileSync(resourcePath + "/jquery.min.js").toString();
         }
         console.log("add jQuery");
         await page.addScriptTag({
             content: jQueryScript,
         });
     }
-    var hasHookJs = await page.evaluate(() => { return typeof hookJsScript != "undefined" });
-    if (!hasHookJs) {
-        if (!hookJsScript) {
-            hookJsScript = fs.readFileSync(resourcePath+"/310win_hook.js").toString();
-        }
-        console.log("add hookJs");
-        await page.addScriptTag({
-            content: hookJsScript,
-        });
-    }
 
-
-    await page.evaluate(() => {
-        // setTr();
-        $("#h_s").val("3").trigger("change");
-        $("#a_s").val("3").trigger("change");
-    });
 }
 
 const chromePath = "C:\\Users\\huanbo-zw\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe";
@@ -113,24 +123,24 @@ const chromePath = "C:\\Users\\huanbo-zw\\AppData\\Local\\Google\\Chrome\\Applic
     await Puppeteer.launch({
         headless: false,
         defaultViewport: null,
-          args: [/*"--no-sandbox", "--disable-setuid-sandbox",*/"--disable-web-security",'--start-maximized'],
+        args: [/*"--no-sandbox", "--disable-setuid-sandbox",*/"--disable-web-security", '--start-maximized'],
         ignoreHTTPSErrors: true,
         ignoreDefaultArgs: ["--enable-automation", "--enable-blink-features"],
-        executablePath:chromePath
-        // devtools: true
+        executablePath: chromePath,
+        devtools: false
     }).then(async (browser) => {
         let pages = await browser.pages();
         mybrowser = browser;
         page = pages[0];
 
+
         browser.on("targetchanged", async (target) => {
             page = await target.page();
             if (page && page.url) {
                 var url = page.url();
-                if (/analysis\/\d+.htm/.test(url)) {
-                    if (!page.initFun) {
-                        await initFun(page);
-                    }
+                console.info("targetchanged", url);
+                if (!page.initFun) {
+                    await initFun(page);
                 }
             }
         })
@@ -138,25 +148,24 @@ const chromePath = "C:\\Users\\huanbo-zw\\AppData\\Local\\Google\\Chrome\\Applic
             page = await target.page();
             if (page && page.url) {
                 var url = page.url();
-                if (/analysis\/\d+.htm/.test(url)) {
-                    if (!page.initFun) {
-                        await initFun(page);
-                    }
+                console.info("targetcreated", url);
+                if (!page.initFun) {
+                    await initFun(page);
                 }
             }
         })
-        browser.on('disconnected',()=>{
+        browser.on('disconnected', () => {
             mybrowser = false;
             console.warn("程序退出了");
             process.exit();
         });
-        await page.goto("https://www.310win.com/");
+        await page.goto("https://k999888.com");
 
     });
 })();
 
 process.on('SIGTERM', async () => {
-    if(mybrowser){
+    if (mybrowser) {
         await mybrowser.close();
     }
 })
