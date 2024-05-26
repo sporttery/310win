@@ -1,18 +1,20 @@
 var hookJs = true;
 var needData = {
-    "tech": { "进攻": 1, "危险进攻": 2, "射门": 3, "犯规": 4,"传球":5,"成功抢断":6,"控球率":7,"界外球":8},
+    "tech": { "角球":1,"进攻": 1, "危险进攻": 2, "射门": 3, "犯规": 4,"传球":5,"成功抢断":6,"控球率":7,"铲球":8},
     "event": {
         "/1.png": "进球",
         "/7.png": "点球",
         "/14.png": "取消入球",
-        "/8.png": "乌龙"       
+        "/8.png": "乌龙" ,
+        "/9.png":"两黄变红",
+        "/2.png":"红牌",
     }
 };
 
 
 function getData(body) {
-    var hostData = { "tech": {}, "event": {} };
-    var visitData = { "tech": {}, "event": {} };
+    var hostData = { "tech": {}, "event": {} ,"team":[]};
+    var visitData = { "tech": {}, "event": {} ,"team":[]};
     if (!body) {
         body = document.body;
     }
@@ -85,6 +87,7 @@ function getData(body) {
                     if (!hostData["event"][imgSrcFlag]) {
                         hostData["event"][imgSrcFlag] = [];
                     }
+                    imgTitle =  needData["event"][imgSrcFlag];
                     hostData["event"][imgSrcFlag].push({ imgTitle, time,imgSrc });
                 }
             }
@@ -97,11 +100,17 @@ function getData(body) {
                     if (!visitData["event"][imgSrcFlag]) {
                         visitData["event"][imgSrcFlag] = [];
                     }
+                    imgTitle =  needData["event"][imgSrcFlag];
                     visitData["event"][imgSrcFlag].push({ imgTitle, time,imgSrc });
                 }
             } 
         });
+
+      
     }
+
+    $(body).find(".plays .home .playBox .name").each(function(){hostData["team"].push($(this).text())})
+    $(body).find(".plays .guest .playBox .name").each(function(){visitData["team"].push($(this).text())})
 
     return { hostData, visitData };
 }
@@ -135,7 +144,7 @@ function showData(obj, data) {
         }
         html.push('</tr>');
     }
-    var strjj = '<tr><th rowspan=###>进球时间</th></tr>';
+    var strjj = '<tr><th rowspan=###>时间</th></tr>';
     var n=0,tmp=[];
     for (var key in data.hostData["event"]) {
         var arr = data.hostData["event"][key];
@@ -160,8 +169,11 @@ function showData(obj, data) {
     
     html.push(strjj+tmp.join(''));
     var str = '<td class="myData" style="vertical-align:top;background: #fff;font-size: 15px;"><table cellspacing="0" cellpadding="0" width="100%" align="center"  border="1">' + html.join("") + '</table></td>';
-   
+    
     $(obj).find(".myData").remove();
+    var tds = $(obj).find("td");
+    $(tds[tds.length-1]).html(data.visitData["team"].join("</br>"));
+    $(tds[tds.length-2]).html(data.hostData["team"].join("</br>"));
     $(str).appendTo($(obj));
 }
 var data_detail = {};
@@ -173,6 +185,8 @@ function setTr() {
         } else {
             $(this).find("table").find("tr:visible").each(function () {
                 var tds = $(this).find("td");
+                $(tds[tds.length-1]).text("客队阵容");
+                $(tds[tds.length-2]).text("主队阵容");
                 if (tds.length == 17) {
                     $(tds[9]).remove();
                     $(tds[10]).remove();
@@ -184,6 +198,7 @@ function setTr() {
                     $(tds[4]).remove();
                     $(tds[5]).remove();
                 }
+               
                 var matchid = this.id.substring(4);
                 if(matchid && !isNaN(parseInt(matchid))){
                     var fun = function (obj) {
