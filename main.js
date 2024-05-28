@@ -1,5 +1,6 @@
 var jQueryScript, hookJsScript, page,mybrowser;
 const fs = require("fs");
+const os = require('os');
 const Puppeteer = require("puppeteer-core");
 async function initFun(page) {
     console.log("找到目标页了" + page.url());
@@ -110,8 +111,20 @@ async function initFun(page) {
     });
 }
 
-const chromePath = "C:\\Users\\huanbo-zw\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe";
-//const chromePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+// const chromePath = "C:\\Users\\huanbo-zw\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe";
+var chromePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+if(!fs.existsSync(chromePath)){
+    console.error(chromePath + " not exists ") ;
+    chromePath = "C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe";
+}
+if(!fs.existsSync(chromePath)){
+    console.error(chromePath + " not exists ") ;
+    chromePath = "C:\\Users\\"+os.userInfo().username+"\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe";
+}
+if(!fs.existsSync(chromePath)){
+    console.error(chromePath + " not exists ") ;
+    process.exit(1);
+}
 (async () => {
     await Puppeteer.launch({
         headless: false,

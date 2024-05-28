@@ -109,8 +109,8 @@ function getData(body) {
       
     }
 
-    $(body).find(".plays .home .playBox .name").each(function(){hostData["team"].push($(this).text())})
-    $(body).find(".plays .guest .playBox .name").each(function(){visitData["team"].push($(this).text())})
+    $(body).find(".plays .home .playBox .name").each(function(){hostData["team"].push("<b style='color:blue;width:10px;margin-right:5px;'>"+$(this).prev().text()+"</b> <span>"+$(this).text()+"</span>")})
+    $(body).find(".plays .guest .playBox .name").each(function(){visitData["team"].push("<b style='color:blue;width:10px;margin-right:5px;'>"+$(this).prev().text()+"</b> <span>"+$(this).text()+"</span>")})
 
     return { hostData, visitData };
 }
@@ -172,8 +172,14 @@ function showData(obj, data) {
     
     $(obj).find(".myData").remove();
     var tds = $(obj).find("td");
-    $(tds[tds.length-1]).html(data.visitData["team"].join("</br>"));
-    $(tds[tds.length-2]).html(data.hostData["team"].join("</br>"));
+    if(data.hostData["team"].length==0){
+        data.hostData["team"].push('无数据');
+    }
+    if(data.visitData["team"].length==0){
+        data.visitData["team"].push('无数据');
+    }
+    $(tds[tds.length-1]).html(data.visitData["team"].join("</br>")).css({"font-size":"20px","text-align":"left"});
+    $(tds[tds.length-2]).html(data.hostData["team"].join("</br>")).css({"font-size":"20px","text-align":"left"});
     $(str).appendTo($(obj));
 }
 var data_detail = {};
@@ -183,10 +189,8 @@ function setTr() {
         if (idx != "8" && idx != "9") {
             $(this).remove();
         } else {
-            $(this).find("table").find("tr:visible").each(function () {
-                var tds = $(this).find("td");
-                $(tds[tds.length-1]).text("客队阵容");
-                $(tds[tds.length-2]).text("主队阵容");
+            $(this).find("table").find("tr:visible").each(function () {                
+                var tds = $(this).find("td");                
                 if (tds.length == 17) {
                     $(tds[9]).remove();
                     $(tds[10]).remove();
@@ -198,9 +202,13 @@ function setTr() {
                     $(tds[4]).remove();
                     $(tds[5]).remove();
                 }
-               
+                // tds = $(this).find("td");
+                // if(this.classList.contains("y_bg") && tds.length >= 13){
+                //     $(tds[13]).text("主队阵容");
+                //     $(tds[14]).text("客队阵容");
+                // }
                 var matchid = this.id.substring(4);
-                if(matchid && !isNaN(parseInt(matchid))){
+                if(matchid && !isNaN(parseInt(matchid))){                   
                     var fun = function (obj) {
                         return function (d) {
                             d = d.replace(/[\r\n]/g, "");
@@ -261,6 +269,7 @@ function initHook(flag){
         $("#right_float").remove();
         $("#dv_new").remove();
         $("#iframeA").hide();
+        $("#webmain").width("90%");
         if(flag==1){
             $("#h_s").val("3").trigger("change");
             $("#a_s").val("3").trigger("change");
