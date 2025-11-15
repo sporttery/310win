@@ -120,6 +120,9 @@ if(!fs.existsSync(chromePath)){
 if(!fs.existsSync(chromePath)){
     console.error(chromePath + " not exists ") ;
     chromePath = "C:\\Users\\"+os.userInfo().username+"\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe";
+}if(!fs.existsSync(chromePath)){
+    console.error(chromePath + " not exists ") ;
+    chromePath = "/Volumes/Work/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 }
 if(!fs.existsSync(chromePath)){
     console.error(chromePath + " not exists ") ;
@@ -166,7 +169,7 @@ if(!fs.existsSync(chromePath)){
             console.warn("程序退出了");
             process.exit();
         });
-        await page.goto("https://www.310win.com/");
+        await page.goto("https://jc.titan007.com/index.aspx");
 
         page.on("domcontentloaded",(e)=>{            
             page.evaluate(()=>{
